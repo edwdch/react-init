@@ -1,9 +1,9 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 
 module.exports = {
+  mode: "development",
   entry: {
     app: "./src/index.js",
   },
@@ -18,18 +18,27 @@ module.exports = {
       filename: "index.html",
     }),
     new CleanWebpackPlugin(),
-    new FriendlyErrorsWebpackPlugin(),
   ],
   module: {
     rules: [
       {
         // js
-        test: /\.m?js$/,
-        exclude: /node_modules/,
+        test: /\.js$/,
+        include: path.resolve(__dirname, "./src"),
         use: {
           loader: "babel-loader",
           options: {
             presets: ["@babel/preset-env"],
+            plugins: [
+              [
+                "@babel/plugin-transform-runtime",
+                {
+                  helpers: true,
+                  corejs: 3,
+                  regenerator: true,
+                },
+              ],
+            ],
           },
         },
       },
@@ -66,8 +75,22 @@ module.exports = {
               },
             },
           },
+          "sass-loader",
         ],
       },
     ],
+  },
+  devtool: "inline-source-map",
+  devServer: {
+    host: "localhost",
+    port: 3000,
+    open: true,
+    historyApiFallback: true,
+    hot: true,
+    compress: true,
+    https: false,
+    proxy: {
+      "/api": "www.baidu.com",
+    },
   },
 };
